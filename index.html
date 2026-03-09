@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Study Hub - AI Learning Assistant</title>
+    <style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+    --bg: #0f0f23;
+    --card: #1a1a2e;
+    --card-hover: #252542;
+    --accent: #6366f1;
+    --accent-hover: #818cf8;
+    --text: #e2e8f0;
+    --text-muted: #94a3b8;
+    --border: #2d2d4a;
+    --success: #22c55e;
+    --warning: #f59e0b;
+    --danger: #ef4444;
+}
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 20px;
+}
+.app { max-width: 1200px; margin: 0 auto; }
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+h1 { font-size: 1.8rem; font-weight: 700; }
+h1 span { color: var(--accent); }
+h2 { font-size: 1.3rem; margin-bottom: 15px; color: var(--text-muted); }
+h3 { font-size: 1.1rem; margin-bottom: 10px; }
+.btn {
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+}
+.btn-primary { background: var(--accent); color: white; }
+.btn-primary:hover { background: var(--accent-hover); }
+.btn-secondary { background: var(--card); color: var(--text); border: 1px solid var(--border); }
+.btn-danger { background: var(--danger); color: white; }
+.btn-small { padding: 8px 16px; font-size: 0.9rem; }
+
+/* Stats */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+    margin-bottom: 30px;
+}
+.stat-card {
+    background: var(--card);
+    padding: 20px;
+    border-radius: 12px;
+    text-align: center;
+    border: 1px solid var(--border);
+}
+.stat-value { font-size: 2rem; font-weight: 700; color: var(--accent); }
+.stat-label { font-size: 0.85rem; color: var(--text-muted); margin-top: 5px; }
+
+/* Tabs */
+.tabs { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+.tab {
+    padding: 10px 20px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    color: var(--text-muted);
+}
+.tab.active { background: var(--accent); color: white; border-color: var(--accent); }
+
+/* Content Areas */
+.content-section { display: none; }
+.content-section.active { display: block; }
+
+/* Forms */
+.form-group { margin-bottom: 20px; }
+.form-group label { display: block; margin-bottom: 8px; color: var(--text-muted); }
+.form-group input, .form-group textarea, .form-group select {
+    width: 100%;
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 1rem;
+}
+.form-group textarea { min-height: 150px; resize: vertical; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+
+/* Library */
+.library-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+.filters { display: flex; gap: 10px; flex-wrap: wrap; }
+.filters input, .filters select {
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 10px 15px;
+    border-radius: 8px;
+}
+
+/* Content Cards */
+.content-grid {
+    display: grid;
+    gap: 15px;
+}
+.content-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.content-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+.content-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 10px;
+}
+.content-card-title { font-size: 1.1rem; font-weight: 600; }
+.content-card-type {
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+}
+.type-text { background: #22c55e33; color: #22c55e; }
+.type-article { background: #6366f133; color: #818cf8; }
+.type-audio { background: #f59e0b33; color: #f59e0b; }
+.content-card-meta {
+    display: flex;
+    gap: 15px;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+}
+.content-card-tags { display: flex; gap: 8px; flex-wrap: wrap; }
+.tag {
+    padding: 2px 10px;
+    background: var(--border);
+    border-radius: 15px;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+.content-card-summary {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border);
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+/* Detail View */
+.detail-view { display: none; }
+.detail-view.active { display: block; }
+.detail-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--accent);
+    cursor: pointer;
+    margin-bottom: 20px;
+    font-size: 0.9rem;
+}
+.detail-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 25px;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+.detail-title { font-size: 1.8rem; }
+.detail-meta { display: flex; gap: 20px; color: var(--text-muted); flex-wrap: wrap; }
+.detail-actions { display: flex; gap: 10px; }
+
+/* AI Output */
+.ai-section {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 25px;
+    margin-bottom: 20px;
+}
+.ai-section h3 { display: flex; align-items: center; gap: 10px; margin-bottom: 15px; }
+.ai-section h3 span { color: var(--accent); }
+.ai-content { line-height: 1.7; color: var(--text-muted); }
+
+/* Concepts */
+.concepts-grid {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+}
+.concept {
+    background: var(--accent);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+}
+
+/* Quiz */
+.quiz-question {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 15px;
+}
+.quiz-question h4 { margin-bottom: 15px; }
+.quiz-options { display: grid; gap: 10px; }
+.quiz-option {
+    padding: 15px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.quiz-option:hover { border-color: var(--accent); }
+.quiz-option.correct { background: #22c55e33; border-color: var(--success); }
+.quiz-option.wrong { background: #ef444433; border-color: var(--danger); }
+.quiz-explanation {
+    margin-top: 15px;
+    padding: 15px;
+    background: var(--bg);
+    border-radius: 8px;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+/* Flashcards */
+.flashcard-grid { display: grid; gap: 15px; }
+.flashcard {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.flashcard:hover { border-color: var(--accent); }
+.flashcard-term { font-weight: 600; margin-bottom: 10px; }
+.flashcard-definition { color: var(--text-muted); font-size: 0.9rem; }
+
+/* Modal */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.8);
+    z-index: 1000;
+    overflow-y: auto;
+}
+.modal.active { display: flex; align-items: center; justify-content: center; padding: 20px; }
+.modal-content {
+    background: var(--bg);
+    padding: 30px;
+    border-radius: 16px;
+    width: 100%;
+    max-width: 600px;
+    max-height: 90vh;
+    overflow-y: auto;
+    border: 1px solid var(--border);
+}
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+.modal-close { font-size: 1.5rem; cursor: pointer; color: var(--text-muted); }
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-muted);
+}
+.empty-state h3 { margin-bottom: 10px; color: var(--text); }
+
+/* Audio Player */
+.audio-player {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 15px;
+    margin-top: 15px;
+}
+audio { width: 100%; }
+
+/* Toast */
+.toast {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: var(--accent);
+    color: white;
+    padding: 15px 25px;
+    border-radius: 8px;
+    display: none;
+    z-index: 2000;
+}
+.toast.show { display: block; }
+
+/* Processing Indicator */
+.processing {
+    display: none;
+    text-align: center;
+    padding: 40px;
+}
+.processing.active { display: block; }
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 20px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Responsive */
+@media (max-width: 768px) {
+    .form-row { grid-template-columns: 1fr; }
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+}
+    </style>
+</head>
+<body>
+    <div class="app">
+        <header>
+            <h1>📚 Study <span>Hub</span></h1>
+            <button class="btn btn-primary" onclick="openAddModal()">+ Add Content</button>
+        </header>
+
+        <!-- Stats -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value" id="totalItems">0</div>
+                <div class="stat-label">Total Items</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="totalArticles">0</div>
+                <div class="stat-label">Articles</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="totalLectures">0</div>
+                <div class="stat-label">Lectures</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="totalNotes">0</div>
+                <div class="stat-label">Notes</div>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <div class="tab active" onclick="switchTab('library')">📚 Library</div>
+            <div class="tab" onclick="switchTab('notes')">📝 My Notes</div>
+            <div class="tab" onclick="switchTab('quiz')">❓ Quiz Mode</div>
+            <div class="tab" onclick="switchTab('flashcards')">🎴 Flashcards</div>
+        </div>
+
+        <!-- Library View -->
+        <div class="content-section active" id="libraryView">
+            <div class="library-header">
+                <h2>Content Library</h2>
+                <div class="filters">
+                    <input type="text" id="searchInput" placeholder="Search..." oninput="renderLibrary()">
+                    <select id="filterType" onchange="renderLibrary()">
+                        <option value="">All Types</option>
+                        <option value="article">Articles</option>
+                        <option value="text">Notes</option>
+                        <option value="audio">Audio</option>
+                    </select>
+                    <select id="filterSubject" onchange="renderLibrary()">
+                        <option value="">All Subjects</option>
+                    </select>
+                </div>
+            </div>
+            <div class="content-grid" id="contentGrid"></div>
+            <div class="empty-state" id="emptyLibrary" style="display:none">
+                <h3>No content yet</h3>
+                <p>Add your first article, note, or lecture to get started!</p>
+            </div>
+        </div>
+
+        <!-- Notes View -->
+        <div class="content-section" id="notesView">
+            <h2>My Notes</h2>
+            <div id="notesContent"></div>
+        </div>
+
+        <!-- Quiz View -->
+        <div class="content-section" id="quizView">
+            <h2>Practice Quiz</h2>
+            <p style="color:var(--text-muted);margin-bottom:20px;">Test your knowledge with generated questions from your content.</p>
+            <div id="quizContent"></div>
+        </div>
+
+        <!-- Flashcards View -->
+        <div class="content-section" id="flashcardsView">
+            <h2>Flashcards</h2>
+            <p style="color:var(--text-muted);margin-bottom:20px;">Review key concepts from your study materials.</p>
+            <div class="flashcard-grid" id="flashcardsContent"></div>
+        </div>
+    </div>
+
+    <!-- Add Content Modal -->
+    <div class="modal" id="addModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Add Content</h2>
+                <span class="modal-close" onclick="closeModal()">&times;</span>
+            </div>
+            
+            <div class="tabs" style="margin-bottom:20px;">
+                <div class="tab active" onclick="switchAddType('text')">📝 Note</div>
+                <div class="tab" onclick="switchAddType('article')">📄 Article</div>
+                <div class="tab" onclick="switchAddType('audio')">🎙️ Audio</div>
+            </div>
+
+            <form id="addForm" onsubmit="saveContent(event)">
+                <input type="hidden" id="contentType" value="text">
+                
+                <div class="form-group">
+                    <label>Title *</label>
+                    <input type="text" id="contentTitle" required placeholder="e.g., AI Lecture 1">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Subject/Course</label>
+                        <input type="text" id="contentSubject" placeholder="e.g., AI Fundamentals">
+                    </div>
+                    <div class="form-group">
+                        <label>Tags (comma separated)</label>
+                        <input type="text" id="contentTags" placeholder="e.g., important, exam1">
+                    </div>
+                </div>
+
+                <!-- Text/Article Input -->
+                <div class="form-group" id="textInputGroup">
+                    <label>Content *</label>
+                    <textarea id="contentBody" placeholder="Paste your notes or article text here..."></textarea>
+                </div>
+
+                <!-- URL Input (Article) -->
+                <div class="form-group" id="urlInputGroup" style="display:none">
+                    <label>Article URL</label>
+                    <input type="url" id="contentUrl" placeholder="https://...">
+                </div>
+
+                <!-- Audio Input -->
+                <div class="form-group" id="audioInputGroup" style="display:none">
+                    <label>Upload Audio</label>
+                    <input type="file" id="audioFile" accept="audio/*">
+                    <p style="color:var(--text-muted);font-size:0.85rem;margin-top:5px;">
+                        Note: For transcription, paste the transcript below or process manually.
+                    </p>
+                </div>
+
+                <div class="form-group" id="transcriptGroup" style="display:none">
+                    <label>Or paste transcript</label>
+                    <textarea id="contentTranscript" placeholder="Paste lecture transcript here..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Notes (optional)</label>
+                    <textarea id="contentNotes" placeholder="Your thoughts..." style="min-height:80px;"></textarea>
+                </div>
+
+                <div style="display:flex;gap:10px;justify-content:flex-end;">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Content</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Detail Modal -->
+    <div class="modal" id="detailModal">
+        <div class="modal-content" style="max-width:800px;">
+            <div class="modal-header">
+                <h2 id="detailTitle">Content Detail</h2>
+                <span class="modal-close" onclick="closeDetailModal()">&times;</span>
+            </div>
+            
+            <div id="detailContent"></div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast">Saved!</div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+    <script>
+        // Firebase Config - Study Hub
+        firebase.initializeApp({
+            apiKey: "AIzaSyCHLIaIjQkEx-oKUF4JawU35OrT1i6ql1E",
+            authDomain: "outdoors-b944e.firebaseapp.com",
+            projectId: "outdoors-b944e",
+            storageBucket: "outdoors-b944e.firebasestorage.app",
+            messagingSenderId: "904169939979",
+            appId: "1:904169939979:web:b03d567bb23befd403130e"
+        });
+        var db = firebase.firestore();
+        var storage = firebase.storage();
+
+        // Data
+        var contents = [];
+        var currentDetail = null;
+
+        // Initialize
+        db.collection('studyhub').orderBy('createdAt', 'desc').onSnapshot(function(snapshot) {
+            contents = [];
+            snapshot.forEach(function(doc) {
+                contents.push({ id: doc.id, ...doc.data() });
+            });
+            updateStats();
+            renderLibrary();
+            renderNotes();
+            renderQuizzes();
+            renderFlashcards();
+        });
+
+        // Stats
+        function updateStats() {
+            document.getElementById('totalItems').textContent = contents.length;
+            document.getElementById('totalArticles').textContent = contents.filter(c => c.type === 'article').length;
+            document.getElementById('totalLectures').textContent = contents.filter(c => c.type === 'audio').length;
+            document.getElementById('totalNotes').textContent = contents.filter(c => c.type === 'text').length;
+            
+            // Update subject filter
+            var subjects = [...new Set(contents.map(c => c.subject).filter(s => s))];
+            var select = document.getElementById('filterSubject');
+            select.innerHTML = '<option value="">All Subjects</option>' + 
+                subjects.map(s => '<option value="'+s+'">'+s+'</option>').join('');
+        }
+
+        // Tab Switching
+        function switchTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
+            event.target.classList.add('active');
+            document.getElementById(tab + 'View').classList.add('active');
+        }
+
+        // Add Modal
+        function openAddModal() {
+            document.getElementById('addModal').classList.add('active');
+            document.getElementById('addForm').reset();
+        }
+        function closeModal() {
+            document.getElementById('addModal').classList.remove('active');
+        }
+
+        function switchAddType(type) {
+            document.getElementById('contentType').value = type;
+            document.querySelectorAll('#addModal .tabs .tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            document.getElementById('textInputGroup').style.display = type === 'text' ? 'block' : 'none';
+            document.getElementById('urlInputGroup').style.display = type === 'article' ? 'block' : 'none';
+            document.getElementById('audioInputGroup').style.display = type === 'audio' ? 'block' : 'none';
+            document.getElementById('transcriptGroup').style.display = type === 'audio' ? 'block' : 'none';
+        }
+
+        // Save Content
+        function saveContent(e) {
+            e.preventDefault();
+            var type = document.getElementById('contentType').value;
+            var data = {
+                type: type,
+                title: document.getElementById('contentTitle').value,
+                subject: document.getElementById('contentSubject').value,
+                tags: document.getElementById('contentTags').value.split(',').map(t => t.trim()).filter(t => t),
+                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                notes: document.getElementById('contentNotes').value,
+                processed: false
+            };
+
+            if (type === 'text') {
+                data.content = document.getElementById('contentBody').value;
+            } else if (type === 'article') {
+                data.content = document.getElementById('contentBody').value;
+                data.url = document.getElementById('contentUrl').value;
+            } else if (type === 'audio') {
+                data.transcript = document.getElementById('contentTranscript').value;
+                var audioFile = document.getElementById('audioFile').files[0];
+                if (audioFile) {
+                    var ref = storage.ref().child('audio/' + Date.now() + '_' + audioFile.name);
+                    ref.put(audioFile).then(function(snap) {
+                        return snap.ref.getDownloadURL();
+                    }).then(function(url) {
+                        data.audioUrl = url;
+                        db.collection('studyhub').add(data);
+                    });
+                    closeModal();
+                    showToast('Uploading audio...');
+                    return;
+                }
+            }
+
+            db.collection('studyhub').add(data);
+            closeModal();
+            showToast('Content saved!');
+        }
+
+        // Render Library
+        function renderLibrary() {
+            var search = document.getElementById('searchInput').value.toLowerCase();
+            var filterType = document.getElementById('filterType').value;
+            var filterSubject = document.getElementById('filterSubject').value;
+
+            var filtered = contents.filter(function(c) {
+                var matchSearch = !search || 
+                    (c.title && c.title.toLowerCase().includes(search)) ||
+                    (c.content && c.content.toLowerCase().includes(search)) ||
+                    (c.subject && c.subject.toLowerCase().includes(search));
+                var matchType = !filterType || c.type === filterType;
+                var matchSubject = !filterSubject || c.subject === filterSubject;
+                return matchSearch && matchType && matchSubject;
+            });
+
+            var grid = document.getElementById('contentGrid');
+            var empty = document.getElementById('emptyLibrary');
+
+            if (filtered.length === 0) {
+                grid.style.display = 'none';
+                empty.style.display = 'block';
+                return;
+            }
+
+            grid.style.display = 'grid';
+            empty.style.display = 'none';
+
+            grid.innerHTML = filtered.map(function(c) {
+                var typeIcon = c.type === 'text' ? '📝' : c.type === 'article' ? '📄' : '🎙️';
+                var typeClass = 'type-' + c.type;
+                var summary = c.summary ? c.summary.substring(0, 100) + '...' : (c.content ? c.content.substring(0, 100) + '...' : 'No content yet. Click to add notes.');
+                
+                return '<div class="content-card" onclick="viewDetail(\''+c.id+'\')">' +
+                    '<div class="content-card-header">' +
+                        '<div class="content-card-title">'+typeIcon+' '+c.title+'</div>' +
+                        '<span class="content-card-type '+typeClass+'">'+c.type+'</span>' +
+                    '</div>' +
+                    '<div class="content-card-meta">' +
+                        (c.subject ? '<span>📚 '+c.subject+'</span>' : '') +
+                        '<span>📅 '+new Date(c.createdAt?.seconds * 1000).toLocaleDateString()+'</span>' +
+                    '</div>' +
+                    (c.tags && c.tags.length ? '<div class="content-card-tags">' + 
+                        c.tags.map(t => '<span class="tag">'+t+'</span>').join('') + '</div>' : '') +
+                    '<div class="content-card-summary">'+summary+'</div>' +
+                '</div>';
+            }).join('');
+        }
+
+        // View Detail
+        function viewDetail(id) {
+            var content = contents.find(function(c) { return c.id === id; });
+            if (!content) return;
+            currentDetail = content;
+
+            document.getElementById('detailTitle').textContent = content.title;
+            
+            var html = '<div class="detail-header">' +
+                '<div>' +
+                    '<div class="detail-title">'+content.title+'</div>' +
+                    '<div class="detail-meta">' +
+                        (content.subject ? '<span>📚 '+content.subject+'</span>' : '') +
+                        '<span>📅 '+new Date(content.createdAt?.seconds * 1000).toLocaleDateString()+'</span>' +
+                        '<span class="content-card-type type-'+content.type+'">'+content.type+'</span>' +
+                    '</div>' +
+                '</div>' +
+                '<div class="detail-actions">' +
+                    '<button class="btn btn-primary btn-small" onclick="processContent(\''+content.id+'\')">🤖 Process with AI</button>' +
+                    '<button class="btn btn-danger btn-small" onclick="deleteContent(\''+content.id+'\')">Delete</button>' +
+                '</div>' +
+            '</div>';
+
+            // Original Content
+            if (content.content) {
+                html += '<div class="ai-section"><h3>📄 Original Content</h3><div class="ai-content">'+content.content+'</div></div>';
+            }
+            if (content.transcript) {
+                html += '<div class="ai-section"><h3>📝 Transcript</h3><div class="ai-content">'+content.transcript+'</div></div>';
+            }
+            if (content.audioUrl) {
+                html += '<div class="audio-player"><audio controls src="'+content.audioUrl+'"></audio></div>';
+            }
+
+            // AI Processed
+            if (content.processed) {
+                if (content.summary) {
+                    html += '<div class="ai-section"><h3>📝 <span>AI Summary</span></h3><div class="ai-content">'+content.summary+'</div></div>';
+                }
+                if (content.concepts && content.concepts.length) {
+                    html += '<div class="ai-section"><h3>💡 <span>Key Concepts</span></h3><div class="concepts-grid">' +
+                        content.concepts.map(c => '<span class="concept">'+c+'</span>').join('') +
+                    '</div></div>';
+                }
+                if (content.quizQuestions && content.quizQuestions.length) {
+                    html += '<div class="ai-section"><h3>❓ <span>Quiz Questions</span></h3>';
+                    content.quizQuestions.forEach(function(q, i) {
+                        html += '<div class="quiz-question"><h4>Q'+(i+1)+': '+q.question+'</h4><div class="quiz-options">' +
+                            q.options.map(function(o, j) {
+                                return '<div class="quiz-option" onclick="checkAnswer(this, '+j+','+q.correctIndex+',\''+q.explanation.replace(/'/g, "\\'")+'\')">'+o+'</div>';
+                            }).join('') +
+                        '</div></div>';
+                    });
+                    html += '</div>';
+                }
+                if (content.flashcards && content.flashcards.length) {
+                    html += '<div class="ai-section"><h3>🎴 <span>Flashcards</span></h3><div class="flashcard-grid">';
+                    content.flashcards.forEach(function(f) {
+                        html += '<div class="flashcard"><div class="flashcard-term">'+f.term+'</div><div class="flashcard-definition">'+f.definition+'</div></div>';
+                    });
+                    html += '</div></div>';
+                }
+            } else {
+                html += '<div class="ai-section"><h3>🤖 <span>AI Processing</span></h3><p style="color:var(--text-muted)">Click "Process with AI" to generate summary, key concepts, quiz questions, and flashcards from this content.</p></div>';
+            }
+
+            document.getElementById('detailContent').innerHTML = html;
+            document.getElementById('detailModal').classList.add('active');
+        }
+
+        function closeDetailModal() {
+            document.getElementById('detailModal').classList.remove('active');
+        }
+
+        // Process with AI (Manual - User processes in chat)
+        function processContent(id) {
+            var content = contents.find(function(c) { return c.id === id; });
+            if (!content) return;
+            
+            showToast('To process this content, share it with me in chat and I will generate the summary, concepts, quiz questions, and flashcards for you. Then I can update it here!');
+            
+            // For now, let me process it directly
+            var textToProcess = content.content || content.transcript || '';
+            if (!textToProcess) {
+                showToast('No text content to process. Add notes or transcript first.');
+                return;
+            }
+
+            // Create a simple summary (in production, use AI API)
+            var summary = 'This content covers important topics related to ' + (content.subject || 'the subject') + '. ';
+            var words = textToProcess.split(/\s+/).slice(0, 50).join(' ');
+            summary += 'Key points include: ' + words + '...';
+
+            // Extract simple concepts (words that appear often)
+            var words = textToProcess.toLowerCase().replace(/[^\w\s]/g, '').split(/\s+/);
+            var wordFreq = {};
+            words.forEach(function(w) { if (w.length > 4) wordFreq[w] = (wordFreq[w] || 0) + 1; });
+            var concepts = Object.entries(wordFreq).sort(function(a,b) { return b[1] - a[1]; }).slice(0, 10).map(function(e) { return e[0]; });
+
+            // Generate quiz (sample)
+            var quizQuestions = [
+                {
+                    question: 'What is the main topic of this content?',
+                    options: [content.subject || 'The subject', 'Something else', 'Unknown', 'N/A'],
+                    correctIndex: 0,
+                    explanation: 'The content relates to ' + (content.subject || 'the subject matter')
+                }
+            ];
+
+            // Generate flashcards (sample)
+            var flashcards = concepts.slice(0, 5).map(function(c) {
+                return { term: c, definition: 'Key concept from ' + (content.title || 'content') };
+            });
+
+            // Update in Firestore
+            db.collection('studyhub').doc(id).update({
+                processed: true,
+                summary: summary,
+                concepts: concepts,
+                quizQuestions: quizQuestions,
+                flashcards: flashcards
+            });
+
+            showToast('Content processed! View the results below.');
+            setTimeout(function() { viewDetail(id); }, 500);
+        }
+
+        function checkAnswer(element, selected, correct, explanation) {
+            var parent = element.parentElement;
+            parent.querySelectorAll('.quiz-option').forEach(function(opt) {
+                opt.style.pointerEvents = 'none';
+                var idx = parseInt(opt.getAttribute('data-idx'));
+                if (idx === correct) opt.classList.add('correct');
+            });
+            if (selected !== correct) {
+                element.classList.add('wrong');
+            }
+            var expDiv = document.createElement('div');
+            expDiv.className = 'quiz-explanation';
+            expDiv.textContent = explanation;
+            parent.appendChild(expDiv);
+        }
+
+        // Delete
+        function deleteContent(id) {
+            if (confirm('Delete this content?')) {
+                db.collection('studyhub').doc(id).delete();
+                closeDetailModal();
+                showToast('Deleted!');
+            }
+        }
+
+        // Render Notes
+        function renderNotes() {
+            var notesContent = contents.filter(function(c) { return c.type === 'text'; });
+            var html = '';
+            if (notesContent.length === 0) {
+                html = '<div class="empty-state"><h3>No notes yet</h3><p>Add your first note!</p></div>';
+            } else {
+                html = '<div class="content-grid">' + notesContent.map(function(c) {
+                    return '<div class="content-card" onclick="viewDetail(\''+c.id+'\')"><div class="content-card-title">📝 '+c.title+'</div>' +
+                        '<div class="content-card-meta"><span>📅 '+new Date(c.createdAt?.seconds * 1000).toLocaleDateString()+'</span></div>' +
+                        '<div class="content-card-summary">'+(c.content ? c.content.substring(0, 150) : '')+'...</div></div>';
+                }).join('') + '</div>';
+            }
+            document.getElementById('notesContent').innerHTML = html;
+        }
+
+        // Render Quizzes
+        function renderQuizzes() {
+            var quizContent = contents.filter(function(c) { return c.quizQuestions && c.quizQuestions.length; });
+            var html = '';
+            if (quizContent.length === 0) {
+                html = '<div class="empty-state"><h3>No quizzes yet</h3><p>Process some content first to generate quiz questions!</p></div>';
+            } else {
+                html = '<div class="content-grid">' + quizContent.map(function(c) {
+                    return '<div class="content-card" onclick="viewDetail(\''+c.id+'\')"><div class="content-card-title">❓ '+c.title+'</div>' +
+                        '<div class="content-card-meta"><span>'+c.quizQuestions.length+' questions</span></div></div>';
+                }).join('') + '</div>';
+            }
+            document.getElementById('quizContent').innerHTML = html;
+        }
+
+        // Render Flashcards
+        function renderFlashcards() {
+            var flashcardContent = contents.filter(function(c) { return c.flashcards && c.flashcards.length; });
+            var allCards = [];
+            flashcardContent.forEach(function(c) {
+                if (c.flashcards) {
+                    c.flashcards.forEach(function(f) {
+                        allCards.push({ ...f, source: c.title });
+                    });
+                }
+            });
+
+            var html = '';
+            if (allCards.length === 0) {
+                html = '<div class="empty-state"><h3>No flashcards yet</h3><p>Process some content first to generate flashcards!</p></div>';
+            } else {
+                html = '<div class="flashcard-grid">' + allCards.map(function(f) {
+                    return '<div class="flashcard"><div class="flashcard-term">'+f.term+'</div><div class="flashcard-definition">'+f.definition+'</div></div>';
+                }).join('') + '</div>';
+            }
+            document.getElementById('flashcardsContent').innerHTML = html;
+        }
+
+        // Toast
+        function showToast(msg) {
+            var toast = document.getElementById('toast');
+            toast.textContent = msg;
+            toast.classList.add('show');
+            setTimeout(function() { toast.classList.remove('show'); }, 3000);
+        }
+    </script>
+</body>
+</html>
